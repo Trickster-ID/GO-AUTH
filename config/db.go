@@ -26,7 +26,7 @@ func SetUpDatabaseConnection() *gorm.DB{
 	db, errDB := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if errDB != nil {
 		fmt.Println("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
-		fmt.Println("--------success connect to DB-------")
+		fmt.Println("--------fail connect to DB-------")
 		fmt.Println("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
 		panic(errDB)
 	}
