@@ -62,7 +62,7 @@ func (c *authController) Register(cx *gin.Context){
 		cx.JSON(http.StatusConflict, response)
 		return
 	}
-	if !(c.auth.IsDuplicateEmail(registerDTO.Email)){
+	if !(c.auth.IsDuplicateEmail(registerDTO.Email, 0)){
 		respons := helper.BuildErrorResponse("failed to register", "email is already exist", helper.EmptyObject{})
 		cx.AbortWithStatusJSON(http.StatusUnauthorized, respons)
 		return
@@ -121,12 +121,16 @@ func (c *authController) PutProfile(cx *gin.Context){
 		return
 	}
 	userUpdateDTO.Id = int(id)
-	filename, errSave := helper.SaveAvatar(userUpdateDTO.Avatar, cx)
-	if errSave != nil{
-		cx.AbortWithStatusJSON(http.StatusBadRequest, helper.BuildErrorResponse("fail to save file", errSave.Error(), userUpdateDTO.Avatar))
-		return
+	var filename string
+	if userUpdateDTO.Avatar != nil{
+		ressave, errSave := helper.SaveAvatar(userUpdateDTO.Avatar, cx)
+		if errSave != nil{
+			cx.AbortWithStatusJSON(http.StatusBadRequest, helper.BuildErrorResponse("fail to save file", errSave.Error(), userUpdateDTO.Avatar))
+			return
+		}
+		filename = ressave
 	}
-	if !(c.auth.IsDuplicateEmail(userUpdateDTO.Email)){
+	if !(c.auth.IsDuplicateEmail(userUpdateDTO.Email, userUpdateDTO.Id)){
 		cx.AbortWithStatusJSON(http.StatusUnauthorized, helper.BuildErrorResponse("failed to update", "email is already exist", helper.EmptyObject{}))
 		return
 	}

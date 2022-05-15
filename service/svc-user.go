@@ -3,8 +3,10 @@ package service
 import (
 	"JwtAuth/dto"
 	"JwtAuth/entity"
+	"JwtAuth/helper"
 	"JwtAuth/repository"
 	"errors"
+	"strconv"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
@@ -16,7 +18,7 @@ type AuthService interface {
 	UpdateProfile(userdto dto.UserPutDto, filename string) (entity.Getcompleteuser, error)
 	FindByEmail(email string) (entity.Getcompleteuser, error)
 	FindProfile(UserID string) (entity.Getcompleteuser, error)
-	IsDuplicateEmail(email string) bool
+	IsDuplicateEmail(email string, id int) bool
 }
 
 type authService struct{userRepo repository.UserRepo}
@@ -60,21 +62,34 @@ func (svc *authService) CreateUser(userdto dto.RegisterPostDTO, filename string)
 
 func (svc *authService) UpdateProfile(d dto.UserPutDto, filename string) (entity.Getcompleteuser, error) {
 	u := entity.User{}
-	entUserC := entity.Getcompleteuser{}
-	u.Id = d.Id
-	u.Name = d.Name
-	u.Email = d.Email
-	reshas, errhas := hashAndSalt([]byte(u.Password))
-	if errhas != nil{
-		return entUserC, errhas
+	result := entity.Getcompleteuser{}
+	//get current data
+	cd, errcurdata := svc.userRepo.ProfileUser(strconv.Itoa(d.Id))
+	if errcurdata != nil{
+		return result, errcurdata
 	}
-	u.Password = string(reshas)
-	u.Prov_id = d.Prov_id
-	u.City_id = d.City_id
-	u.Dis_id = d.Dis_id
-	u.Subdis_id = d.Subdis_id
-	u.Avatar = filename
+	//fill to entity
+	u.Id = cd.Id
+	u.Name = helper.Ifelse(d.Name, cd.Name).(string)
+	u.Email = helper.Ifelse(d.Email, cd.Email).(string)
+	u.Prov_id = helper.Ifelse(d.Prov_id, cd.Prov_id).(int)
+	u.City_id = helper.Ifelse(d.City_id, cd.City_id).(int)
+	u.Dis_id = helper.Ifelse(d.Dis_id, cd.Dis_id).(int)
+	u.Subdis_id = helper.Ifelse(d.Subdis_id, cd.Subdis_id).(int)
+	u.Avatar = helper.Ifelse(filename, cd.Avatar).(string)
 	u.Update_at = time.Now()
+	u.Create_at = cd.Create_at
+
+	//hash password
+	if d.Password != ""{
+		reshas, errhas := hashAndSalt([]byte(d.Password))
+		if errhas != nil{
+			return result, errhas
+		}
+		u.Password = string(reshas)
+	}else{
+		u.Password = cd.Password
+	}
 	return svc.userRepo.UpdateUser(u)
 }
 
@@ -86,20 +101,12 @@ func (svc *authService) FindProfile(UserID string) (entity.Getcompleteuser, erro
 	return svc.userRepo.ProfileUser(UserID)
 }
 
-func (svc *authService) IsDuplicateEmail(email string) bool{
-	res := svc.userRepo.IsDuplicateEmail(email)
+func (svc *authService) IsDuplicateEmail(email string, id int) bool{
+	res := svc.userRepo.IsDuplicateEmail(email, id)
 	return !(res.Error == nil)
 }
 
 func comparePassword(hashedPwd string, plainPass string) bool{
-	// res := true
-	// byteHash := []byte(hashedPwd)
-	// err := bcrypt.CompareHashAndPassword(byteHash, plainPass)
-	// if err != nil{
-	// 	fmt.Println("fail when comparing hash and password!!")
-	// 	res = false
-	// }
-	// return res, err
 	err := bcrypt.CompareHashAndPassword([]byte(hashedPwd), []byte(plainPass))
 	return err == nil
 }

@@ -7,12 +7,6 @@ type LoginPostDTO struct {
 	Password string `json:"password,omitempty" form:"password,omitempty" binding:"required"`
 }
 
-type PasswordDto struct {
-	Username string `json:"username" form:"username" binding:"required"`
-	Email    string `json:"email" form:"email" binding:"required" validate:"email"`
-	Password string `json:"password,omitempty" form:"password,omitempty" binding:"required"`
-}
-
 type RegisterPostDTO struct {
 	Name     string `json:"name" form:"name" binding:"required" validate:"min:1"`
 	Email    string `json:"email" form:"email" binding:"required" validate:"email"`

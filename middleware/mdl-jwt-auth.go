@@ -22,7 +22,9 @@ func AuthJWT(jwtService service.JWTService) gin.HandlerFunc{
 		if token.Valid {
 			claims := token.Claims.(jwt.MapClaims)
 			log.Println("claim[user_id] : ", claims["user_id"])
-			log.Println("claim[issuer] : ", claims["issuer"])
+			//log.Println("claim[exp]     : ", claims["exp"])
+			//log.Println("claim[iat]     : ", claims["iat"])
+			//log.Println("claim[iss]     : ", claims["iss"])
 		}else{
 			log.Println(err)
 			response := helper.BuildErrorResponse("token is not valid", err.Error(),nil)

@@ -25,17 +25,9 @@ type jwtService struct {
 
 func NewJWTService() JWTService {
 	return &jwtService{
-		secretKey: getSecretkey(),
-		issuer: "pikapi",
+		secretKey: os.Getenv("JWT_SECRET"),
+		issuer: os.Getenv("JWT_ISSUER"),
 	}
-}
-
-func getSecretkey() string{
-	sk := os.Getenv("JWT_SECRET")
-	if sk != "" {
-		sk = "pikapi"
-	}
-	return sk
 }
 
 func (js *jwtService) GenerateToken(userID string) string {
