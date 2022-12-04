@@ -13,12 +13,12 @@ func SetUpDatabaseConnection() *gorm.DB {
 	// if errEnv != nil {
 	// 	panic("fail to load .env")
 	// }
-	host := os.Getenv("HOST")
-	user := os.Getenv("USER")
-	pass := os.Getenv("PASS")
-	dbname := os.Getenv("DBNAME")
-	port := os.Getenv("PORT")
-	sslmode := os.Getenv("SSLMODE")
+	host := os.Getenv("DB_HOST")
+	user := os.Getenv("DB_USER")
+	pass := os.Getenv("DB_PASSWORD")
+	dbname := os.Getenv("DB_NAME")
+	port := os.Getenv("DB_PORT")
+	sslmode := os.Getenv("DB_SSLMODE")
 
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=%s TimeZone=Asia/Shanghai", host, user, pass, dbname, port, sslmode)
 
