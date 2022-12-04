@@ -13,29 +13,29 @@ import (
 
 var (
 	//DB
-	db 			*gorm.DB							= config.SetUpDatabaseConnection()
+	db *gorm.DB = config.SetUpDatabaseConnection()
 	//Repository
-	rpUser		repository.UserRepo					= repository.NewUserRepo(db)
-	rpProv		repository.ProvincesRepo			= repository.NewProvincesRepo(db)
-	rpCity		repository.CitiesRepo				= repository.NewCitiesRepo(db)
-	rpDis		repository.DistrictsRepo			= repository.NewDistrictsRepo(db)
-	rpSubDis	repository.SubdistrictsRepo			= repository.NewSubdistrictsRepo(db)
+	rpUser   repository.UserRepo         = repository.NewUserRepo(db)
+	rpProv   repository.ProvincesRepo    = repository.NewProvincesRepo(db)
+	rpCity   repository.CitiesRepo       = repository.NewCitiesRepo(db)
+	rpDis    repository.DistrictsRepo    = repository.NewDistrictsRepo(db)
+	rpSubDis repository.SubdistrictsRepo = repository.NewSubdistrictsRepo(db)
 	//Service
-	svcUser		service.AuthService					= service.NewAuthService(rpUser)
-	svcJwt		service.JWTService					= service.NewJWTService()
+	svcUser service.AuthService = service.NewAuthService(rpUser)
+	svcJwt  service.JWTService  = service.NewJWTService()
 	//Controller
-	ctrlUser	controller.AuthController			= controller.NewAuthController(svcUser,svcJwt)
-	ctrlProv	controller.ProvController			= controller.NewProvController(rpProv)
-	ctrlCity	controller.CitiesController			= controller.NewCitiesController(rpCity)
-	ctrlDis		controller.DistrictsController		= controller.NewDistrictsController(rpDis)
-	ctrlSubDis	controller.SubdistrictsController	= controller.NewSubdistrictsController(rpSubDis)
+	ctrlUser   controller.AuthController         = controller.NewAuthController(svcUser, svcJwt)
+	ctrlProv   controller.ProvController         = controller.NewProvController(rpProv)
+	ctrlCity   controller.CitiesController       = controller.NewCitiesController(rpCity)
+	ctrlDis    controller.DistrictsController    = controller.NewDistrictsController(rpDis)
+	ctrlSubDis controller.SubdistrictsController = controller.NewSubdistrictsController(rpSubDis)
 )
 
 func main() {
 	defer config.CloseDatabaseConnection(db)
 	r := gin.Default()
 	apiGroup := r.Group("/api")
-	{ 
+	{
 		apiGroup.POST("/login", ctrlUser.Login)
 		apiGroup.POST("/register", ctrlUser.Register)
 
@@ -64,5 +64,5 @@ func main() {
 		}
 	}
 
-	r.Run()
+	r.Run(":8888")
 }
